@@ -99,9 +99,10 @@ namespace TWIC_Downloader
 
             if (downloadToNo.HasValue)
             {
-                Console.WriteLine("Working directory: " + workingFolder);
+                Console.WriteLine("Latest archive to look for: " + BuildTwicArchiveName(downloadToNo.Value));
             }
 
+            Console.WriteLine("Working directory: " + workingFolder);
             Console.WriteLine("");
 
 
@@ -222,6 +223,9 @@ namespace TWIC_Downloader
             {
                 while (true)
                 {
+                    if (downloadToNo.HasValue && currFileNo > downloadToNo)
+                        break;
+
                     string twicFileName = BuildTwicArchiveName(currFileNo);
                     try
                     {
@@ -259,8 +263,16 @@ namespace TWIC_Downloader
             {
 
                 twicFilesDownloaded.Sort();
-                twicComboFileName = Path.Combine(workingFolder, 
-                    "twicMerged_" + twicFilesDownloaded[0].ToString() + "_" + twicFilesDownloaded[twicFilesDownloaded.Count - 1].ToString() + ".pgn");
+                if (twicFilesDownloaded.Count == 1)
+                {
+                    twicComboFileName = Path.Combine(workingFolder,
+                        "twicSingle_" + twicFilesDownloaded[0].ToString() + ".pgn");
+                }
+                else
+                {
+                    twicComboFileName = Path.Combine(workingFolder,
+                        "twicMerged_" + twicFilesDownloaded[0].ToString() + "_" + twicFilesDownloaded[twicFilesDownloaded.Count - 1].ToString() + ".pgn");
+                }
 
                 string[] pgnFiles;
                 pgnFiles = Directory.GetFiles(tmpSubfolder + "\\Extract", "*.pgn");
@@ -282,7 +294,14 @@ namespace TWIC_Downloader
             }
 
             Console.WriteLine("");
-            Console.WriteLine("Downloaded archives successfully merged.");
+            if (twicFilesDownloaded.Count == 1)
+            {
+                Console.WriteLine("Downloaded archive saved.");
+            }
+            else
+            {
+                Console.WriteLine("Downloaded archives successfully merged.");
+            }
             Console.WriteLine("Your output is in " + twicComboFileName);
         }
 
